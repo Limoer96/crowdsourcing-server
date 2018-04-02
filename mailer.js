@@ -30,7 +30,23 @@ exports.sendVCMail = function sendVCMail(address, vcode) {
     if(err) {
       console.log('无法发送邮件');
     }
-    console.log(info);
   });
 }
 
+exports.sendRestEmail = function sendRestEmail(address, url) {
+  const email = {
+    from: '"H Fxxc 重置密码"<mailerceshi@163.com>',
+    to: address,
+    subject: '重置密码',
+    html: `
+      <p>H Fxxc 移动众包平台密码重置</p>
+
+      <p><span>点击</span><a href="${url}">${url}</a><span>重置密码</span></p>
+    `
+  }
+  transporter.sendMail(email, (err, info) => {
+    if(err) {
+      console.log('发送邮件失败');
+    }
+  })
+}

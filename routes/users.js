@@ -151,5 +151,48 @@ router.post('/check_id_validation', (req, res, next) => {
 });
 
 
+router.post('/send_reset_email', (req, res, next) => {
+  console.log('run this router');
+  const { email } = req.body;
+  User.find({ email: email }, (err, rows) => {
+    if(err) {
+      res.status(500).json({ status:2, error: '服务器错误', data: ''})
+    }
+    if(rows.length === 0) {
+      res.status(400).send({ status: 1, error: '不存在该用户', data: '' })
+    }else {
+      let user = rows[0];
+      const token = jwt.sign({
+        _id: user._id
+      }, KEY, {
+        expiresIn: 600
+      })
+      mailer.sendRestEmail(email, `http://localhost:8080/#/reset_password?t=${token}`);
+      res.json({ status: 0, error: '', data: '' })
+    }
+  })
+});
+
+
+router.post('/reset_password', (req, res, next) => {
+  const { token, password } = req.body;
+  jwt.verify(token, KEY, function(err, decoded) {
+    if(err) {
+      res.status(401).json({ status: 1, error: '身份验证失败', data: ''})
+    }else {
+      let _id = decoded._id;
+      bcrypt.hash(password, 10, function(err, hash) {
+        User.update({ _id: _id }, { password_hash: hash }, (err, result) => {
+          if(err){
+            console.log(err);
+            res.status(500).json({ status: 2, error: '服务器错误', data: '' })
+          }else {
+            res.json({ status: 0 ,error: '', data: '' })
+          }
+        })
+      })
+    }
+  })
+});
 
 module.exports = router;

@@ -43,11 +43,18 @@ app.use((req, res, next) => {
   }else {
     // 除去某些特定的API，其余的都做token的验证
     let { path } = req;
-    if(path === '/api/users/auth' || path === '/api/users/auth_vc' || path === '/api/users/check_id_validation' || path === '/api/users/regist') {
+    if(path === '/api/users/auth' 
+      || path === '/api/users/auth_vc' 
+      || path === '/api/users/check_id_validation' 
+      || path === '/api/users/regist'
+      || path === '/api/users/send_reset_email'
+      || path === '/api/users/reset_password'
+    ) 
+    {
       console.log('本次请求不需要验证权限');
       next();
     }else {
-      const token = headers.authorization.split(' ')[1];
+      const token = req.headers.authorization.split(' ')[1];
       req.token = token;
       jwt.verify(token, KEY, (err, decoded) => {
         if(err) {
