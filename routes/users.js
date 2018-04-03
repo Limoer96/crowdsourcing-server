@@ -36,7 +36,7 @@ router.post('/auth', (req, res, next) => {
             }, KEY, {
               expiresIn: '1h'
             });
-            res.json({ status: 0, error: '', data: { message: 'Success', token, confirmed } })
+            res.json({ status: 0, error: '', data: { message: 'Success', token, confirmed, id: user._id } })
           }else {
             res.status(400).json({status: 1, error: 'INVALID USER INPUT', data: ''})
           }
@@ -194,5 +194,29 @@ router.post('/reset_password', (req, res, next) => {
     }
   })
 });
+
+router.post('/user_info', (req, res, next) => {
+  const { _id } = req.body;
+  User.findById(_id, (err, user) => {
+    if(err) {
+      res.status(500).json({ status: 2, data: '', error: '服务器错误' })
+    }else {
+      const data = {
+        userId: user.user_id,
+        prifile: user.profile,
+        sex: user.sex,
+        taskComplete: user.tasks_publih.length,
+        taskNow: 1,
+        rate: 100,
+        good_at: ['图像采集', '电脑技术', '远程任务'],
+        taskPublish:  user.tasks_publih.length,
+        taskReceive:  user.tasks_receive.length,
+        discuss: 10,
+        answers: 49
+      }
+      res.json({ status: 0, error: '', data: data })
+    }
+  })
+})
 
 module.exports = router;
