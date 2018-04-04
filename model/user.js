@@ -10,10 +10,12 @@ const userSchema = mongoose.Schema({
   profile: { type: String },
   good_at: [{ type: String }],
   tasks_publih: [{
-    t_id: { type: String }
+    t_id: { type: String },
+    status: { type: Number, enum: [1,2,3] }
   }],
   tasks_receive: [{
-    t_id: { type: String }
+    t_id: { type: String },
+    status: { type: Number, enum: [1,2,3] }
   }],
   account: {
     total: { type: Number, default: 0},

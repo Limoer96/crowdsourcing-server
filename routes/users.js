@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const User = require('../model/user');
+const Task = require('../model/task');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const KEY = 'fafamnx!!2d**8z';
@@ -178,7 +179,7 @@ router.post('/reset_password', (req, res, next) => {
   const { token, password } = req.body;
   jwt.verify(token, KEY, function(err, decoded) {
     if(err) {
-      res.status(401).json({ status: 1, error: '身份验证失败', data: ''})
+      res.status(400).json({ status: 1, error: '身份验证失败', data: ''})
     }else {
       let _id = decoded._id;
       bcrypt.hash(password, 10, function(err, hash) {
@@ -219,4 +220,44 @@ router.post('/user_info', (req, res, next) => {
   })
 })
 
+
+router.get('/quick_login', (req, res, next) => {
+  const user_id = req.decoded.user_id;
+  const token = jwt.sign({
+    user_id: user_id
+  }, KEY, {
+    expiresIn: '1h'
+  })  
+  res.json({ status: 0, error: '', data: { token: token } })
+});
+
+// 这里有一个问题，每次都需要获取一下任务的数量
+router.get('/publish_tasks', (req, res, next) => {
+  const { u, p } = req.query;
+  const PAGE_SIZE = 8;
+  let skip = PAGE_SIZE * (p - 1);
+  Task.count({'publish_info.user_id': u}, (err, count) => {
+    if(err) {
+      res.status(500).json({ error: '服务器错误', status: 2, data: data })      
+    }else {
+      Task.find({'publish_info.user_id': u}).skip(skip).limit(PAGE_SIZE).exec((err1, rows) => {
+        if(err1) {
+          res.status(500).json({ error: '服务器错误', status: 2, data: data })
+        }else {
+          res.json({
+            error: '',
+            status: 0,
+            data: {
+              count: count,
+              userId: u,
+              lists: rows
+            }
+          })
+        }
+      })
+    }
+  })
+});
+
 module.exports = router;
+

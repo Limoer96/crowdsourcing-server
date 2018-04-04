@@ -16,7 +16,7 @@ const taskSchema = mongoose.Schema({
   nums_confirm: { type: Number, min: 0, default: 0},
   price: { type: Number, min: 0, default: 0 },
   time_limit: { type: Number, min: 1, default: 24 },
-  is_complete: { type: Boolean, default: false },
+  status: { type: Number, enum: [0,1,2] },
   publish_info: {
     user_id: { type: String, required: true },
     time: { type: Date, default: Date.now }
