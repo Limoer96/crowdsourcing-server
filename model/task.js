@@ -16,21 +16,18 @@ const taskSchema = mongoose.Schema({
   nums_confirm: { type: Number, min: 0, default: 0},
   price: { type: Number, min: 0, default: 0 },
   time_limit: { type: Number, min: 1, default: 24 },
-  status: { type: Number, enum: [0,1,2] },
+  status: { type: Number, enum: [0, 1, 2] },
   publish_info: {
-    user_id: { type: String, required: true },
-    time: { type: Date, default: Date.now }
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   },
   receive_users: [{
-    user_id: { type: String },
-    time_start: { type: Date, default: Date.now },
-    time_complete: { type: Date },
-    confirmed: { type: Boolean, default: false },
-    answer: {
-      text: { type: String },
-      imgSrc: { type: String },
-      videoSrc: { type: String }
-    }
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  answers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Answer'
   }]
 })
 

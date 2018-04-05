@@ -54,7 +54,7 @@ app.use((req, res, next) => {
       console.log('本次请求不需要验证权限');
       next();
     }else {
-      const token = req.headers.authorization.split(' ')[1];
+      const token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : '';
       req.token = token;
       jwt.verify(token, KEY, (err, decoded) => {
         if(err) {
