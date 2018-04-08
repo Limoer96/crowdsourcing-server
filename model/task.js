@@ -1,9 +1,11 @@
-const mongoose = require('./db');
-
+const mongoose = require('mongoose');
+const Answer = require('./answer'); // 首先创建这个模型，不然无法populate
+const User = require('./user');
 const taskSchema = mongoose.Schema({
   t_id: { type: String, required: true },
   title: { type: String, required: true },
   desc: { type: String },
+  time: { type: Date, default: Date.now },
   types: [{ type: String }],
   limits: [{ type: String }],
   location: {
@@ -16,7 +18,7 @@ const taskSchema = mongoose.Schema({
   nums_confirm: { type: Number, min: 0, default: 0},
   price: { type: Number, min: 0, default: 0 },
   time_limit: { type: Number, min: 1, default: 24 },
-  status: { type: Number, enum: [0, 1, 2] },
+  status: { type: Number, enum: [0, 1, 2],default: 0 },
   publish_info: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
@@ -25,7 +27,7 @@ const taskSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
-  answers: [{
+  answers_: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Answer'
   }]

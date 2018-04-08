@@ -1,5 +1,8 @@
 var mongoose =require('mongoose');
-mongoose.connect('mongodb://localhost/csapp');
-mongoose.Promise = global.Promise;
 
-module.exports = mongoose;
+function connect() {
+  mongoose.connect('mongodb://localhost/csapp');
+  mongoose.Promise = global.Promise;
+}
+
+module.exports = connect;

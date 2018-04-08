@@ -1,16 +1,16 @@
-const mongoose = require('./db');
+const mongoose = require('mongoose');
 
-const AnswerSchema = mongoose.Schema({
-  a_id: { type: String, required: true },
+const answerSchema = mongoose.Schema({
   date: { type: Date, default: Date.now },
+  status: { type: Number, enum: [0,1,2], default: 1 },
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   task: { type: mongoose.Schema.Types.ObjectId, ref: 'Task'},
   text: { type: String, required: true },
   img_src: { type: String },
   video_src: { type: String }
-})
+});
 
-const Answer = mongoose.model('Answer', AnswerSchema);
+const Answer = mongoose.model('Answer', answerSchema);
 
 module.exports = Answer;
 
@@ -24,4 +24,6 @@ module.exports = Answer;
  * 文本内容： 必须
  * 图片内容： 可选
  * 视频内容： 可选
+ * 回答状态： 0已经确认， 1待确认， 2已经拒绝
  */
+

@@ -1,6 +1,12 @@
 // mock数据
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/csapp');
+  
+mongoose.Promise = global.Promise;
+
 const User = require('./model/user');
 const Task = require('./model/task');
+const Answer = require('./model/answer');
 const util = require('./util/gen');
 
 const taskId = util.genTaskId();
@@ -23,21 +29,8 @@ function addTask() {
     price: 1,
     time_limit: 36,
     status: 1,
-    publish_info: {
-      user_id: 'limoer',
-      time: Date.now()
-    },
-    receive_users: [
-      {
-        user_id: 'lindo',
-        time_start: new Date(2018, 4, 2).getTime(),
-        time_complete: new Date(2018, 4, 3).getTime(),
-        confirmed: true,
-        answer: {
-          text: '可不可以配置多个主题啊！不喜欢绿色调为主的配色方案'
-        }
-      }
-    ]
+    publish_info: '5ac6d5087e5fb263229dab3a',
+    receive_users: ['5ac6d5087e5fb263229dab3a']
   });
   task.save((err, result) => {
     if(err) {
@@ -58,11 +51,54 @@ function addRecord() {
   })
 }
 
-function run (){
-  addTask();
-  // addRecord();
+function addToUser() {
+  User.findByIdAndUpdate('5ac6d5087e5fb263229dab3a', { $push: { tasks_publih: '5ac6d7d5da5d6e652a3890dd' } }, (err, user) => {
+    if(err) {
+      console.log("插入数据失败");
+    }else {
+      console.log("插入数据成功");
+    }
+  })
 }
 
-run();
+function getUserName() {
+  Task.findById('5ac6d7d5da5d6e652a3890dd').populate('publish_info').exec((err, task) => {
+    console.log('task user name:', task.publish_info.user_id);
+  })
+}
+
+function addAnAnswer() {
+  new Answer({
+    author: '5ac6d5087e5fb263229dab3a',
+    task: '5ac8612c0973a44856b9914a',
+    text: '我觉得界面太丑啦！！！'
+  }).save((err, res) => {
+    if(err) {
+      console.log(err)
+    }else {
+      console.log("插入回答成功");
+    }
+  })
+}
+
+function deleteRecord() {
+  Task.findByIdAndUpdate('5ac8612c0973a44856b9914a', { $pull: {'receive_users': '5ac9ed08dd91eca1a95bcad0' } },
+  (err, result) => {
+    if(err) {
+      console.log(err);
+    }else {
+      console.log("删除成功");
+    }
+  }  
+)
+}
+
+// addTask();
+// addToUser();
+// getUserName();
+// addAnAnswer();
+deleteRecord();
+
+
 
 

@@ -7,25 +7,20 @@ const bcrypt = require('bcrypt');
 const KEY = 'fafamnx!!2d**8z';
 const genCVs = require("../util/genVCs");
 const mailer = require('../mailer');
+const handle = require('../util/handleResponseError');
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
-
 // 包含普通登录，邮箱免密登录
 router.post('/auth', (req, res, next) => {
   const { user_id, password, email, vc }  = req.body;
-  console.log(req.body);
   if(user_id && !email) {
     // 此时为普通用户登录
     User.find({ user_id: user_id }, (err, rows) => {
       if(err) {
-        res.status(500).json({
-          status: 2,
-          error: 'Server Error',
-          data: ''
-        })
+        handle.handleServerError(res);
       }
       if(rows.length === 1) {
         const user = rows[0];
@@ -33,27 +28,24 @@ router.post('/auth', (req, res, next) => {
         bcrypt.compare(password, user.password_hash, (err, result) => {
           if(result) {
             const token = jwt.sign({
-              user_id: user_id
+              user_id: user_id,
+              _id: user._id
             }, KEY, {
               expiresIn: '1h'
             });
             res.json({ status: 0, error: '', data: { message: 'Success', token, confirmed, id: user._id } })
           }else {
-            res.status(400).json({status: 1, error: 'INVALID USER INPUT', data: ''})
+            handle.handleInvalidAuthError(res);
           }
         })
       }else {
-        res.status(400).json({ status: 1, error: 'Invalid user input', data: '' })
+        handle.handleInvalidAuthError(res);
       }
     });
   }else if(email && !user_id) {
     User.find({ email: email }, (err, rows) => {
       if(err) {
-        res.status(500).json({
-          status: 2,
-          error: 'Server Error',
-          data: ''
-        })
+        handle.handleServerError(res);
       }
       if(rows.length === 1) {
         let user = rows[0];
@@ -62,16 +54,16 @@ router.post('/auth', (req, res, next) => {
           res.json({ status: 10, error: '', data: { email: email } })
         }else {
           // 验证码输入错误
-          res.status(400).json({ status: 1, error: '验证码输入错误', data:''})
+          handle.handleInvalidAuthError(res, '验证码输入错误');
         }
       }else {
-        res.status(400).json({ status: 1, error: '邮箱或验证码错误', data: ''});
+        handle.handleInvalidAuthError(res, '邮箱或验证码输入错误');
       }
       
     })
   }else {
     // 非法登录
-    res.status(400).json({status: 1, error: '非法登录', data: ''})
+    handle.handleInvalidAuthError(res, '非法登录');
   }
 })
 
@@ -79,13 +71,12 @@ router.post('/auth', (req, res, next) => {
 router.post('/auth_vc', (req, res, next) => {
   const { email } = req.body; //
   User.find({ email: email }, (err, rows) => {
-    console.log("run in");
     if(err) {
-      console.log('err in');
-      res.status(500).json({ status: 2, error: 'Server Error', data: '' })
+      handle.handleServerError(res);
     }
     if(rows.length === 0) {
       const vc = genCVs(6);
+      // 初始化这个User
       let user = new User({
         user_id: email,
         password_hash: email,
@@ -95,15 +86,15 @@ router.post('/auth_vc', (req, res, next) => {
       });
       user.save((err, result) => {
         if(err) {
-          console.log('err', err);
-          res.status(500).json({ status: 2, error: 'Server Error', data: ''})
+          handle.handleServerError(res);
         }else {
+          // 发送验证码到邮箱
           mailer.sendVCMail(email, vc);
           res.json({status: 0, error: '', data: ''})
         }
       })
     }else {
-      res.status(400).json({status: 1, error: '该邮件已被使用' ,data: ''})
+      handle.handleInvalidAuthError(res, '该邮箱已经被使用');
     }
   }) 
 })
@@ -119,16 +110,18 @@ router.post('/regist', (req, res, next) => {
     confirmed: true,
     token: ''
   }, 
-    function(err, obj) {
+    function(err, user) {
       if(err) {
-        res.status(500).json({ status: 2, error: 'Server Error', data: '' });
+        handle.handleServerError(res);
       }else{
+        // 颁发凭证，并设置一小时失效
         let token = jwt.sign({
-          user_id: userId
+          user_id: userId,
+          _id: user._id
         }, KEY, {
           expiresIn: '1h'
         });
-        res.json({ status: 0, error: '', data: { token: token } })
+        res.json({ status: 0, error: '', data: { token: token, id: user._id} })
       }
   })
 })
@@ -137,32 +130,28 @@ router.post('/check_id_validation', (req, res, next) => {
   const { userId } = req.body;
   User.find({ user_id: userId }, (err, rows) => {
     if(err) {
-      res.status(500).json({
-        status: 2,
-        data: '',
-        error: 'Server Error'
-      })
+      handle.handleServerError(res);
     }
     if(rows.length === 0) {
       res.json({ status: 0, data: '', error: '' })
     }else {
-      res.json({ status: 1, data: '', error: '该用户名被占用' })
+      handle.handleInvalidAuthError(res, '该用户名已被占用');
     }
   })
 });
 
 
 router.post('/send_reset_email', (req, res, next) => {
-  console.log('run this router');
   const { email } = req.body;
   User.find({ email: email }, (err, rows) => {
     if(err) {
-      res.status(500).json({ status:2, error: '服务器错误', data: ''})
+      handle.handleServerError(res, '服务器错误');
     }
     if(rows.length === 0) {
-      res.status(400).send({ status: 1, error: '不存在该用户', data: '' })
+      handle.handleInvalidAuthError(res, '不存在该用户');
     }else {
       let user = rows[0];
+      // 颁发一个凭证，并且10分钟内有效
       const token = jwt.sign({
         _id: user._id
       }, KEY, {
@@ -179,14 +168,13 @@ router.post('/reset_password', (req, res, next) => {
   const { token, password } = req.body;
   jwt.verify(token, KEY, function(err, decoded) {
     if(err) {
-      res.status(400).json({ status: 1, error: '身份验证失败', data: ''})
+      handle.handleInvalidAuthError(res, '身份验证失败');
     }else {
       let _id = decoded._id;
       bcrypt.hash(password, 10, function(err, hash) {
         User.update({ _id: _id }, { password_hash: hash }, (err, result) => {
           if(err){
-            console.log(err);
-            res.status(500).json({ status: 2, error: '服务器错误', data: '' })
+            handle.handleServerError(res);
           }else {
             res.json({ status: 0 ,error: '', data: '' })
           }
@@ -200,9 +188,11 @@ router.post('/user_info', (req, res, next) => {
   const { _id } = req.body;
   User.findById(_id, (err, user) => {
     if(err) {
-      res.status(500).json({ status: 2, data: '', error: '服务器错误' })
+      handle.handleServerError(res);
     }else {
+      // 这里的某些数据仅仅是模拟的
       const data = {
+        _id: user._id,
         userId: user.user_id,
         prifile: user.profile,
         sex: user.sex,
@@ -223,40 +213,40 @@ router.post('/user_info', (req, res, next) => {
 
 router.get('/quick_login', (req, res, next) => {
   const user_id = req.decoded.user_id;
+  const _id = req.decoded._id;
+  // 重新颁发一个token，并且重置有效期
   const token = jwt.sign({
-    user_id: user_id
+    user_id: user_id,
+    _id: _id
   }, KEY, {
     expiresIn: '1h'
   })  
   res.json({ status: 0, error: '', data: { token: token } })
 });
 
-// 这里有一个问题，每次都需要获取一下任务的数量
+// 使用类似于表的外连接过后，该怎么操作呢！
 router.get('/publish_tasks', (req, res, next) => {
   const { u, p } = req.query;
   const PAGE_SIZE = 8;
   let skip = PAGE_SIZE * (p - 1);
-  Task.count({'publish_info.user_id': u}, (err, count) => {
-    if(err) {
-      res.status(500).json({ error: '服务器错误', status: 2, data: data })      
-    }else {
-      Task.find({'publish_info.user_id': u}).skip(skip).limit(PAGE_SIZE).exec((err1, rows) => {
-        if(err1) {
-          res.status(500).json({ error: '服务器错误', status: 2, data: data })
-        }else {
-          res.json({
-            error: '',
-            status: 0,
-            data: {
-              count: count,
-              userId: u,
-              lists: rows
-            }
-          })
-        }
-      })
-    }
-  })
+
+  User.find({ user_id: u }).populate('tasks_publih').exec().then((users) => {
+    const user = users[0]; // 取得当前用户
+    const count = user.tasks_publih.length;
+    const currentList = user.tasks_publih.slice(skip, skip + 8);
+    res.json({
+      status: 0,
+      error: '',
+      data: {
+        count: count,
+        userId: u,
+        lists: currentList
+      }
+    })
+  }).catch(err => {
+    handle.handleServerError(res, '发生了错误');
+  }) 
+
 });
 
 module.exports = router;

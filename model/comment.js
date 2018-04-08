@@ -1,4 +1,4 @@
-const mongoose = require('./db');
+const mongoose = require('mongoose');
 
 const commentSchema = mongoose.Schema({
   commenter: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -7,6 +7,9 @@ const commentSchema = mongoose.Schema({
   date: { type: Date, default: Date.now }
 })
 
+const Commnet = mongoose.model('Comment', commentSchema);
+
+module.exports = Comment;
 
 
 /**

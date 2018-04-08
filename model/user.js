@@ -1,4 +1,4 @@
-const mongoose = require('./db');
+const mongoose = require('mongoose');
 
 const userSchema = mongoose.Schema({
   user_id: { type: String, required: true },

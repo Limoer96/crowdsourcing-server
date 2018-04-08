@@ -1,5 +1,5 @@
 // 单条账户记录
-const mongoose = require('./db');
+const mongoose = require('mongoose');
 
 const RecordSchema = mongoose.Schema({
   offset: { type: Number, required: true },

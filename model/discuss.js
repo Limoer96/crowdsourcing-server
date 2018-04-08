@@ -1,6 +1,6 @@
 // 用户论坛的发帖记录
 
-let mongoose = require('./db');
+let mongoose = require('mongoose');
 
 const DiscussSchema = mongoose.Schema({
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
