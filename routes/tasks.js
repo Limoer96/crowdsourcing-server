@@ -87,6 +87,42 @@ router.get('/reveive_task', (req, res, next) => {
   })
 })
 
+// 多条件查询
+
+router.post('/tasks_list_mult_conditions', (req, res, next) => {
+  const { city, type, time_limit, nums_need, price } = req.body;
+  
+  let query = Task.find({ status: 0 });
+
+  if(city !== '') {
+    query = query.where('location.city').equals(city)
+  }
+  // 如果是全国的话， 跳过城市查询， 否则进行城市查询
+  query.where('nums_need').lte(nums_need)
+  .where('time_limit').lte(time_limit)
+  .where('price').lte(price).populate('publish_info', '-password_hash')
+  .exec((err, tasks) => {
+    if(err) {
+      console.log(err);
+      handle.handleServerError(res)
+    }else {
+      // 再进行关于类型的筛选
+      if(type !== '') {
+        const tasksAfterFilter = [];
+        tasks.forEach(task => {
+          if(task.types.indexOf(type) !== -1) {
+            tasksAfterFilter.push(task);
+          }
+        })
+        res.json({ data: tasksAfterFilter, error: '', status: 0 })
+      }else {
+        res.json({ data: tasks, status: 0, error: '' })
+      }
+    }
+  })
+})
+
+
 
 
 module.exports = router;
