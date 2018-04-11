@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const User = require('./user');
+const Task = require('./task');
 
 const answerSchema = mongoose.Schema({
   date: { type: Date, default: Date.now },
@@ -6,7 +8,7 @@ const answerSchema = mongoose.Schema({
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   task: { type: mongoose.Schema.Types.ObjectId, ref: 'Task'},
   text: { type: String, required: true },
-  img_src: { type: String },
+  img_src: [ { type: String } ],
   video_src: { type: String }
 });
 
