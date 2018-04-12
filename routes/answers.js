@@ -24,25 +24,21 @@ router.post('/upload', (req, res, next) => {
             let imageType = /^data:image\/(\w+);(\w+)/.exec(image.content);
             let fileName = uuidv4();
             let path = `public/upload/answerImage/${fileName}.${imageType[1]}`;
-            console.log('图片路劲:', path);
             paths.push(path);
             let base64 = image.content.replace(/^data:image\/\w+;base64,/, "");
             let imageBuffer = new Buffer(base64, 'base64');
             fs.writeFileSync(path, imageBuffer);
           }
             // 如果不存在错误
-          console.log("图片保存成功");
           new Answer({
             author: u_id,
             task: t_id,
             text: answer,
             img_src: paths
           }).save((err, result) => {
-            console.log('创建回答成功');
             if(!err) {
               Task.findByIdAndUpdate(t_id, { $push: { answers_: result._id } }, ((err1, res1) =>{
                 if(!err) {
-                  console.log('更新task成功');
                   res.json({ status:0, data: '', error: '' })
                 }
               }))
@@ -55,5 +51,24 @@ router.post('/upload', (req, res, next) => {
     }
   })
 })
+// 获取回答数据并返回
+router.get('/info', (req, res, next) => {
+  let _id = req.query.a_id;
+  Answer.findById(_id).populate({
+    path: 'author',
+    select: 'user_id',
+  })
+  .populate({
+    path: 'task',
+    select: 'title'
+  }).exec((err, result) => {
+    if(err) {
+      console.log(err);
+      handle.handleServerError(res);
+    }else {
+      res.json({ status: 0, data: result, error: '' })
+    }
+  })
+});
 
 module.exports = router;
