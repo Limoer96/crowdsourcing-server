@@ -10,9 +10,7 @@ router.post('/upload', (req, res, next) => {
   const u_id = req.decoded._id; //获取用户_id
   const { t_id, answer, images } = req.body.data;
   // 第一步，进行文件上传
-  console.log('开始响应！');
   const paths = [];
-  console.log("图片长度", images.length);
   Answer.find({ author: u_id, task: t_id }, (err, rows) => {
     if(!err) {
       if(rows.length !== 0) {
@@ -56,19 +54,42 @@ router.get('/info', (req, res, next) => {
   let _id = req.query.a_id;
   Answer.findById(_id).populate({
     path: 'author',
-    select: 'user_id',
+    select: 'user_id profile',
   })
   .populate({
     path: 'task',
-    select: 'title'
+    select: 'title time time_limit desc publish_info'
   }).exec((err, result) => {
     if(err) {
-      console.log(err);
       handle.handleServerError(res);
     }else {
       res.json({ status: 0, data: result, error: '' })
     }
   })
 });
+
+// 涉及到生成账单记录等并未开始实现
+
+router.get('/confirm', (req, res, next) => {
+  let _id = req.query.a_id;
+  Answer.findByIdAndUpdate(_id, { status: 0, confirmTime: Date.now() }, (err, result) => {
+    if(err) {
+      handle.handleServerError(res);
+    }else {
+      res.json({ status: 0, error: '', data: '' })
+    }  
+  })
+});
+
+router.get('/reject', (req, res, next) => {
+  let _id = req.query.a_id;
+  Answer.findByIdAndUpdate(_id, { status: 2 }, (err, result) => {
+    if(err) {
+      handle.handleServerError(res);
+    }else {
+      res.json({ data: '', status: 0, error: '' })
+    }
+  })
+})
 
 module.exports = router;

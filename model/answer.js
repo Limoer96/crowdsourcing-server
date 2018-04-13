@@ -4,7 +4,8 @@ const Task = require('./task');
 
 const answerSchema = mongoose.Schema({
   date: { type: Date, default: Date.now },
-  status: { type: Number, enum: [0,1,2], default: 1 },
+  confirmTime: { type: Date },
+  status: { type: Number, enum: [0,1,2,3,4], default: 1 }, // 3 4 分别表示仲裁成功和失败
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   task: { type: mongoose.Schema.Types.ObjectId, ref: 'Task'},
   text: { type: String, required: true },

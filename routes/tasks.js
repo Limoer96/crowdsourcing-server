@@ -87,13 +87,28 @@ router.get('/reveive_task', (req, res, next) => {
   })
 })
 
+// 在多条件查询之前先任务的状态
+
+
+function updateTaskStatus() {
+  Task.find({}, (err, tasks) => {
+    tasks.forEach((task) => {
+      if(new Date(task.time).getTime() + task.time_limit * 3600000 - Date.now() <= 0) {
+        task.status = 1; // 表示结束
+        task.save();
+      }
+    })
+  })
+}
+
 // 多条件查询
 
 router.post('/tasks_list_mult_conditions', (req, res, next) => {
   const { city, type, time_limit, nums_need, price } = req.body;
+
+  updateTaskStatus(); // 更新一下状态
   
   let query = Task.find({ status: 0 });
-
   if(city !== '') {
     query = query.where('location.city').equals(city)
   }
@@ -103,7 +118,6 @@ router.post('/tasks_list_mult_conditions', (req, res, next) => {
   .where('price').lte(price).populate('publish_info', '-password_hash')
   .exec((err, tasks) => {
     if(err) {
-      console.log(err);
       handle.handleServerError(res)
     }else {
       // 再进行关于类型的筛选
