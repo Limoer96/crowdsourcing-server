@@ -185,7 +185,7 @@ router.post('/reset_password', (req, res, next) => {
 });
 
 router.post('/user_info', (req, res, next) => {
-  const { _id } = req.body;
+  const _id  = req.body || '';
   User.findById(_id, (err, user) => {
     if(err) {
       handle.handleServerError(res);

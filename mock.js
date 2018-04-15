@@ -93,11 +93,28 @@ function deleteRecord() {
 )
 }
 
+function createSuperUser() {
+  // 创建一个用户交易的三方账户
+  new User({
+    user_id : '官方账户',
+    password_hash: 'limoer96xxcsd',
+    sex: 0
+  }).save((err, result) => {
+    if(err) {
+      console.log('err', err);
+    }else {
+      console.log("插入用户成功");
+    }
+  })
+}
+
+
 // addTask();
 // addToUser();
 // getUserName();
 // addAnAnswer();
-deleteRecord();
+// deleteRecord();
+// createSuperUser();
 
 
 

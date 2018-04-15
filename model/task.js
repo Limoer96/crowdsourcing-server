@@ -15,10 +15,10 @@ const taskSchema = mongoose.Schema({
     city: { type: String }
   },
   nums_need: { type: Number, min: 1 , default: 1},
-  nums_confirm: { type: Number, min: 0, default: 0},
+  nums_confirm: { type: Number, min: 0, default: 0}, // 指的是已经接收任务的人数
   price: { type: Number, min: 0, default: 0 },
   time_limit: { type: Number, min: 1, default: 24 },
-  status: { type: Number, enum: [0, 1, 2],default: 0 },
+  status: { type: Number, enum: [0, 1, 2, 3],default: 0 }, // 正在进行 已结束 已经关闭 待发布
   publish_info: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'

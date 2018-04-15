@@ -12,6 +12,8 @@ var index = require('./routes/index');
 var users = require('./routes/users');
 var tasks = require('./routes/tasks');
 var answers = require('./routes/answers');
+var records = require('./routes/records');
+
 var app = express();
 
 const KEY = 'fafamnx!!2d**8z';
@@ -80,6 +82,7 @@ app.use('/', index);
 app.use('/api/users', users);
 app.use('/api/tasks', tasks);
 app.use('/api/answers', answers);
+app.use('/api/records', records);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
