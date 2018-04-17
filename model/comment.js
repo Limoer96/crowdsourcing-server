@@ -4,7 +4,7 @@ const commentSchema = mongoose.Schema({
   commenter: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   content: { type: String, required: true },
   discuss: { type: mongoose.Schema.Types.ObjectId, ref: 'Discuss' },
-  date: { type: Date, default: Date.now }
+  date: { type: Date, default: Date.now() }
 })
 
 const Commnet = mongoose.model('Comment', commentSchema);

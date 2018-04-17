@@ -6,7 +6,7 @@ const RecordSchema = mongoose.Schema({
   send: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   receive: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   count: { type: Number, required: true },
-  date: { type: Date, default: Date.now },
+  date: { type: Date, default: Date.now() },
   status: { type: Number, enum: [0, 1, 2] }
 });
 

@@ -54,5 +54,32 @@ router.post('/pay', (req, res, next) => {
 })
 
 
+router.get('/latest', (req, res, next) => {
+  let _id = req.decoded._id; // 用户的_id
+  let timeBase = Date.now() - 24 * 3600000; // 基准时间戳
+  Record
+    .find({ date: { '$gte': timeBase }})
+    .populate('send', '-password_hash')
+    .populate('receive', '-password_hash')
+    .sort({ date: -1 }) // 时间降序排序
+    .exec((err, records) => {
+      if(err) {
+        handle.handleServerError(res);
+      }else {
+        let sendList = [];
+        let receiveList = [];
+        for(let record of records) {
+          if( record.send._id == _id ) {
+            sendList.push(record);
+          }
+          if(record.receive._id == _id) {
+            receiveList.push(record);
+          }
+        }
+        res.json({ status: 0, error: '', data: { sendList, receiveList } })
+      }
+    })
+})
+
 
 module.exports = router;

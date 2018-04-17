@@ -3,7 +3,7 @@ const User = require('./user');
 const Task = require('./task');
 
 const answerSchema = mongoose.Schema({
-  date: { type: Date, default: Date.now },
+  date: { type: Date, default: Date.now() },
   confirmTime: { type: Date },
   status: { type: Number, enum: [0,1,2,3,4], default: 1 }, // 3 4 分别表示仲裁成功和失败
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -12,6 +12,10 @@ const answerSchema = mongoose.Schema({
   img_src: [ { type: String } ],
   video_src: { type: String }
 });
+
+
+
+
 
 const Answer = mongoose.model('Answer', answerSchema);
 

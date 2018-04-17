@@ -6,7 +6,7 @@ const DiscussSchema = mongoose.Schema({
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   subject: { type: String, required: true },
   desc: { type: String, required: true },
-  date: { type: Date, default: Date.now },
+  date: { type: Date, default: Date.now() },
   comment: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
   status: { type: Number, enum: [0, 1, 2] }
 });

@@ -3,6 +3,8 @@ let router = express.Router();
 let uuidv4 = require('uuid/v4');
 let fs = require("fs");
 let handle = require("../util/handleResponseError");
+
+let User = require('../model/user');
 let Answer = require('../model/answer');
 let Task = require('../model/task');
 let Record = require('../model/record');
@@ -80,7 +82,7 @@ router.get('/confirm', (req, res, next) => {
 
   let _id = req.query.a_id;
 
-  Answer.findById(_id)
+  Answer.findByIdAndUpdate(_id, { confirmTime: Date.now()})
     .populate('task')
     .exec((err, answer) => {
       if(answer.task.status === 2 || answer.status === 0) {
@@ -104,7 +106,14 @@ router.get('/confirm', (req, res, next) => {
               if(err) {
                 handle.handleServerError(res);
               }else {
-                res.json({ status: 0, error: '', data: '' })
+                // 修改用户的账户
+                User.findByIdAndUpdate(answer.author, { $inc: { 'account': answer.task.price * 0.7 }}, (err, user) => {
+                  if(err) {
+                    handle.handleServerError(res);
+                  }else {
+                    res.json({ status: 0, error: '', data: '' });
+                  }
+                })
               }
             }); 
           }
@@ -123,5 +132,36 @@ router.get('/reject', (req, res, next) => {
     }
   })
 })
+
+// 获得最近(24小时内的)的交易信息
+
+router.get('/latest', (req, res, next) => {
+  let _id = req.decoded._id; // 用户的id
+  let timeBase = Date.now() - 24 * 3600000; // 基准时间戳
+  // 找到所有的确认的并且确认时间不超过24小时的answer然后判断其相应任务的发布者是不是用户
+  Answer
+    .find({ status: 0, confirmTime:{ '$gte': timeBase }})
+    .populate('task')
+    .populate('author', '-password_hash')
+    .exec((err, records) => {
+      if(err) {
+        handle.handleServerError(res);
+      }else {
+        let tempRecords = [];
+        for(let record of records) {
+          // 这里读到的publish_info是一个object,
+          if(record.task.publish_info == _id) {
+            tempRecords.push(record);
+          }else {
+            console.log('false');
+          }
+        }
+        res.json({ status: 0, data: tempRecords, error: '' })
+      }
+    })
+});
+
+
+
 
 module.exports = router;

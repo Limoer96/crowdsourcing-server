@@ -5,7 +5,7 @@ const taskSchema = mongoose.Schema({
   t_id: { type: String, required: true },
   title: { type: String, required: true },
   desc: { type: String },
-  time: { type: Date, default: Date.now },
+  time: { type: Date, default: Date.now()},
   types: [{ type: String }],
   limits: [{ type: String }],
   location: {
