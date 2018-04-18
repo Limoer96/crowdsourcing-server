@@ -95,7 +95,8 @@ router.get('/confirm', (req, res, next) => {
           count: 1,
           send: SU_ID,
           receive: answer.author,
-          status: 0
+          status: 0,
+          ref: answer.task._id
         }).save((err, record) => {
           if(err) {
             handle.handleServerError(res);
@@ -133,7 +134,7 @@ router.get('/reject', (req, res, next) => {
   })
 })
 
-// 获得最近(24小时内的)的交易信息
+// 获得最近(24小时内的)的answer信息
 
 router.get('/latest', (req, res, next) => {
   let _id = req.decoded._id; // 用户的id

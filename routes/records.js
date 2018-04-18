@@ -30,7 +30,9 @@ router.post('/pay', (req, res, next) => {
               count: count,
               send: _id,
               receive: SU_ID,
-              status: 0
+              status: 0,
+              date: Date.now(),
+              ref: t_id
             }).save((err, record) => {
               if(err) {
                 handle.handleServerError(res)

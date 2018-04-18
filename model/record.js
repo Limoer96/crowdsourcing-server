@@ -6,8 +6,10 @@ const RecordSchema = mongoose.Schema({
   send: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   receive: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   count: { type: Number, required: true },
-  date: { type: Date, default: Date.now() },
-  status: { type: Number, enum: [0, 1, 2] }
+  date: { type: Date },
+  status: { type: Number, enum: [0, 1, 2] },
+  ref: { type: mongoose.Schema.Types.ObjectId, ref: 'Task' }  
+  // 因为目前涉及到的订单都是与任务支付和退款有关，这里新增一个ref字段，表明产生交易的相关任务
 });
 
 const Record = mongoose.model('Record', RecordSchema);

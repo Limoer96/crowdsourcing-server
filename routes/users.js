@@ -249,5 +249,20 @@ router.get('/publish_tasks', (req, res, next) => {
 
 });
 
+router.get('/receive_tasks', (req, res, next) => {
+  const _id = req.decoded._id;
+  User
+    .findById(_id)
+    .populate('tasks_receive')
+    .select('tasks_receive')
+    .exec((err, user) => {
+      if(err) {
+        handle.handleServerError(res);
+      }else {
+        res.json({ data: user , error: '', status: 0});
+      }
+    })
+})
+
 module.exports = router;
 

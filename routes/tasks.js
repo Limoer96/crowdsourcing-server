@@ -91,7 +91,9 @@ router.get('/close_one', (req, res, next) => {
             count: 1,
             send: SU_ID,
             receive: user._id,
-            status: 0
+            status: 0,
+            date: Date.now(),
+            ref: task._id
           }).save((err2, record) => {
             if(err2) {
               handle.handleServerError(res);
@@ -116,7 +118,9 @@ router.get('/close_one', (req, res, next) => {
           count: task.nums_need - task.nums_confirm,
           send: SU_ID,
           receive: task.publish_info._id,
-          status: 0
+          status: 0,
+          date: Date.now(),
+          ref: task._id
         }).save((err3, record1) => {
           if(err3) {
             handle.handleServerError(res)
