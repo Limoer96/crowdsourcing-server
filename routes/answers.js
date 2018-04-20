@@ -20,7 +20,6 @@ router.post('/upload', (req, res, next) => {
   Answer.find({ author: u_id, task: t_id }, (err, rows) => {
     if(!err) {
       if(rows.length !== 0) {
-        console.log(rows.length);
         res.json({ status: 8, error: '', data: '' });
       }else {
         try {

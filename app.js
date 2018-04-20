@@ -13,6 +13,9 @@ var users = require('./routes/users');
 var tasks = require('./routes/tasks');
 var answers = require('./routes/answers');
 var records = require('./routes/records');
+var discusses = require('./routes/discusses');
+var comments = require('./routes/comments');
+
 
 var app = express();
 
@@ -60,7 +63,6 @@ app.use((req, res, next) => {
       || path === '/api/users/reset_password'
     ) 
     {
-      console.log('本次请求不需要验证权限');
       next();
     }else {
       const token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : '';
@@ -69,7 +71,6 @@ app.use((req, res, next) => {
         if(err) {
           res.status(401).json({ status: 3, error: '用户认证失败', data: '' })
         }else {
-          console.log('验证权限通过');
           req.decoded = decoded;
           next();
         }
@@ -83,6 +84,8 @@ app.use('/api/users', users);
 app.use('/api/tasks', tasks);
 app.use('/api/answers', answers);
 app.use('/api/records', records);
+app.use('/api/discusses', discusses);
+app.use('/api/comments', comments);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

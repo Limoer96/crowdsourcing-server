@@ -1,13 +1,16 @@
 const mongoose = require('mongoose');
+// const Discuss  = require('./discuss');
 
 const commentSchema = mongoose.Schema({
   commenter: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   content: { type: String, required: true },
+  comment:  { type: mongoose.Schema.Types.ObjectId, ref: 'Comment' },
   discuss: { type: mongoose.Schema.Types.ObjectId, ref: 'Discuss' },
+  userRef: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   date: { type: Date, default: Date.now() }
 })
 
-const Commnet = mongoose.model('Comment', commentSchema);
+const Comment = mongoose.model('Comment', commentSchema);
 
 module.exports = Comment;
 
