@@ -202,8 +202,8 @@ router.post('/user_info', (req, res, next) => {
         good_at: ['图像采集', '电脑技术', '远程任务'],
         taskPublish:  user.tasks_publih.length,
         taskReceive:  user.tasks_receive.length,
-        discuss: 10,
-        answers: 49
+        discuss: user.discusses.length,
+        answers: user.comments.length
       }
       res.json({ status: 0, error: '', data: data })
     }

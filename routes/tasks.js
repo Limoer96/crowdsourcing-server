@@ -150,25 +150,28 @@ router.get('/reveive_task', (req, res, next) => {
   const u_id = req.decoded._id;
   // 更新两个部分 用户模型和采集id 任务模型的采集用户id
   // 1. 遍历用户已经采集的任务，如果已经采集就不再加入
-  User.findById(u_id).select('tasks_receive').exec((err, obj) => {
-    console.log(obj);
+  User.findById(u_id).exec((err, obj) => {
     if(obj.tasks_receive.indexOf(_id) > -1) {
       // 此时任务已经被加入
       res.json({ status: 5, data: '', error: '' })
     }else {
-      User.findByIdAndUpdate(u_id, { $push: { tasks_receive: _id } }, (err, result) => {
-        if(err) {
-          handle.handleServerError(res);
-        }else {
-          Task.findByIdAndUpdate(_id, { $push: { receive_users: u_id }, $inc: { 'nums_confirm': 1 }}, (err, result) => {
-            if(err) {
-              handle.handleServerError(res);
-            }else{
-              res.json({ data: '', error: '', status: 0 })
-            }
-          })
-        }
-      })
+      if(obj.nums_need === obj.nums_confirm) {
+        res.json({ status: 6, error: '', data: '' })
+      }else {
+        User.findByIdAndUpdate(u_id, { $push: { tasks_receive: _id } }, (err, result) => {
+          if(err) {
+            handle.handleServerError(res);
+          }else {
+            Task.findByIdAndUpdate(_id, { $push: { receive_users: u_id }, $inc: { 'nums_confirm': 1 }}, (err, result) => {
+              if(err) {
+                handle.handleServerError(res);
+              }else{
+                res.json({ data: '', error: '', status: 0 })
+              }
+            })
+          }
+        })
+      }
     }
   })
 })
@@ -223,6 +226,17 @@ router.post('/tasks_list_mult_conditions', (req, res, next) => {
 })
 
 
+router.get('/map', (req, res, next) => {
+  let _id = req.decoded._id;
+  // 筛选条件，使用了地址(经纬度)发布的任务，当前任务处于可选择状态，当前任务非自己发布的任务
+  Task.find({ status: 0, 'location.lng': { '$ne': 0 }, 'publish_info': { '$ne': _id }}, (err, tasks) => {
+    if(err) {
+      handle.handleServerError(res);
+    }else {
+      res.json({ status: 0, error: '', data: tasks });
+    }
+  })
+})
 
 
 module.exports = router;

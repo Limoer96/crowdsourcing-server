@@ -2,12 +2,12 @@
 const express = require('express');
 const Comment = require('../model/comment');
 const Discuss = require('../model/discuss');
+const User = require('../model/user');
 const handle = require('../util/handleResponseError');
 const router = express.Router();
 
 router.post('/upload', (req, res, next) => {
   let { d_id, u_id, c_id ,content } = req.body.data;
-  console.log(req.body);
   let _id = req.decoded._id;
   let CommentModel;
   // 判断是否是针对评论下面评论的评论
@@ -36,10 +36,15 @@ router.post('/upload', (req, res, next) => {
     }else {
       Discuss.findByIdAndUpdate(d_id, { $push: { comment: comment._id } }, (err, discuss) => {
         if(err) {
-          console.log(err);
           handle.handleServerError(res);
         }else {
-          res.json({status: 0, error: '', data: ''});
+          User.findByIdAndUpdate(_id, { $push: { comments: comment._id } }, (err, user) => {
+            if(err) {
+              handle.handleServerError(res);
+            }else {
+              res.json({status: 0, error: '', data: ''});
+            }
+          })
         }
       })
     }

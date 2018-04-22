@@ -3,6 +3,7 @@ const uuidv4 = require('uuid/v4');
 const fs = require('fs');
 
 const Discuss = require('../model/discuss');
+const User = require('../model/user');
 const handle = require('../util/handleResponseError');
 
 const router = express.Router();
@@ -33,7 +34,13 @@ router.post('/upload', (req, res, next) => {
       if(err) {
         handle.handleServerError(res);
       }else {
-        res.json({ data: '', status: 0, error: '' })
+        User.findByIdAndUpdate(u_id, { $push: { discusses: discuss._id } }, (err, user) => {
+          if(err) {
+            handle.handleServerError(res);
+          }else {
+            res.json({ data: '', status: 0, error: '' });
+          }
+        })
       }
     })
   } catch (error) {
@@ -80,5 +87,20 @@ router.get('/info', (req, res, next) => {
       }
     })
 })
+
+router.get('/profile_discuss', (req, res, next) => {
+  let u_id = req.query.u_id;
+  Discuss
+    .find({ author: u_id })
+    .populate('author', '-password_hash')
+    .exec((err, discusses) => {
+      if(err) {
+        handle.handleServerError(res);
+      }else {
+        res.json({ status: 0, error: '', data: discusses })
+      }
+    })
+})
+
 
 module.exports = router;
