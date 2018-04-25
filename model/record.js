@@ -8,6 +8,8 @@ const RecordSchema = mongoose.Schema({
   count: { type: Number, required: true },
   date: { type: Date },
   status: { type: Number, enum: [0, 1, 2] },
+  type: { type: Number, enmu: [1, 2, 3, 4, 5] },
+  text: { type: String },
   ref: { type: mongoose.Schema.Types.ObjectId, ref: 'Task' }  
   // 因为目前涉及到的订单都是与任务支付和退款有关，这里新增一个ref字段，表明产生交易的相关任务
 });
@@ -22,5 +24,6 @@ module.exports = Record;
  * 交易双方
  * 交易时间
  * 交易状态 0 成功 1 失败 2 交易关闭
- * 
+ * text: 交易说明，用于充值与提现
+ * type: 1,2,3,4,5 任务支付 用户确认支付 任务退款 任务点充值 提现
  */

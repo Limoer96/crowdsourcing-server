@@ -95,6 +95,8 @@ router.get('/confirm', (req, res, next) => {
           send: SU_ID,
           receive: answer.author,
           status: 0,
+          type: 2,
+          date: Date.now(),
           ref: answer.task._id
         }).save((err, record) => {
           if(err) {

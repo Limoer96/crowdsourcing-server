@@ -93,7 +93,8 @@ router.get('/close_one', (req, res, next) => {
             receive: user._id,
             status: 0,
             date: Date.now(),
-            ref: task._id
+            ref: task._id,
+            type: 2
           }).save((err2, record) => {
             if(err2) {
               handle.handleServerError(res);
@@ -120,7 +121,8 @@ router.get('/close_one', (req, res, next) => {
           receive: task.publish_info._id,
           status: 0,
           date: Date.now(),
-          ref: task._id
+          ref: task._id,
+          type: 3
         }).save((err3, record1) => {
           if(err3) {
             handle.handleServerError(res)
@@ -155,23 +157,29 @@ router.get('/reveive_task', (req, res, next) => {
       // 此时任务已经被加入
       res.json({ status: 5, data: '', error: '' })
     }else {
-      if(obj.nums_need === obj.nums_confirm) {
-        res.json({ status: 6, error: '', data: '' })
-      }else {
-        User.findByIdAndUpdate(u_id, { $push: { tasks_receive: _id } }, (err, result) => {
-          if(err) {
-            handle.handleServerError(res);
+      Task.findById(_id, (err, task) => {
+        if(err) {
+          handle.handleServerError(res);
+        }else {
+          if(task.nums_need === task.nums_confirm) {
+            res.json({ status: 6, error: '', data: '' })
           }else {
-            Task.findByIdAndUpdate(_id, { $push: { receive_users: u_id }, $inc: { 'nums_confirm': 1 }}, (err, result) => {
+            User.findByIdAndUpdate(u_id, { $push: { tasks_receive: _id } }, (err, result) => {
               if(err) {
                 handle.handleServerError(res);
-              }else{
-                res.json({ data: '', error: '', status: 0 })
+              }else {
+                Task.findByIdAndUpdate(_id, { $push: { receive_users: u_id }, $inc: { 'nums_confirm': 1 }}, (err, result) => {
+                  if(err) {
+                    handle.handleServerError(res);
+                  }else{
+                    res.json({ data: '', error: '', status: 0 })
+                  }
+                })
               }
             })
           }
-        })
-      }
+        }
+      })
     }
   })
 })

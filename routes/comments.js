@@ -67,5 +67,22 @@ router.get('/list', (req, res, next) => {
 })
 
 
+router.get('/filter', (req, res, next) => {
+  let u_id = req.query.u_id;
+  Comment
+    .find({ commenter: u_id })
+    .populate('discuss')
+    .populate('userRef')
+    .populate('commenter')
+    .exec((err, comments) => {
+      if(err) {
+        console.log(err);
+        handle.handleServerError(res);
+      }else {
+        res.json({ data: comments, error: '', status: 0 })
+      }
+    })
+})
+
 
 module.exports = router;

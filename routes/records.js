@@ -32,7 +32,8 @@ router.post('/pay', (req, res, next) => {
               receive: SU_ID,
               status: 0,
               date: Date.now(),
-              ref: t_id
+              ref: t_id,
+              type: 1
             }).save((err, record) => {
               if(err) {
                 handle.handleServerError(res)
@@ -68,20 +69,23 @@ router.get('/latest', (req, res, next) => {
       if(err) {
         handle.handleServerError(res);
       }else {
+        console.log(records.length);
         let sendList = [];
         let receiveList = [];
+        // 如果是充值的话，是没有send这个字段的；如果是提现，也没有receive这个字段
         for(let record of records) {
-          if( record.send._id == _id ) {
+          if( record.send && record.send._id == _id ) {
             sendList.push(record);
           }
-          if(record.receive._id == _id) {
+          if(record.receive && record.receive._id == _id) {
             receiveList.push(record);
           }
+
         }
         res.json({ status: 0, error: '', data: { sendList, receiveList } })
       }
     })
-})
+});
 
 
 module.exports = router;

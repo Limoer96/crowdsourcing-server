@@ -15,7 +15,8 @@ var answers = require('./routes/answers');
 var records = require('./routes/records');
 var discusses = require('./routes/discusses');
 var comments = require('./routes/comments');
-
+var accounts = require('./routes/accounts');
+var admins = require('./routes/admins');
 
 var app = express();
 
@@ -48,7 +49,6 @@ const allowCrossDomain = function(req, res, next) {
 app.use(allowCrossDomain); // CORS
 
 app.use((req, res, next) => {
-  console.log('methods' ,req.method);
   if( req.method === 'OPTIONS' ) {
     console.log('option请求直接通过');
     next();
@@ -61,6 +61,8 @@ app.use((req, res, next) => {
       || path === '/api/users/regist'
       || path === '/api/users/send_reset_email'
       || path === '/api/users/reset_password'
+      || path === '/api/admins/auth'
+      || path === '/api/admins/data'
     ) 
     {
       next();
@@ -86,7 +88,8 @@ app.use('/api/answers', answers);
 app.use('/api/records', records);
 app.use('/api/discusses', discusses);
 app.use('/api/comments', comments);
-
+app.use('/api/accounts', accounts);
+app.use('/api/admins', admins);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
