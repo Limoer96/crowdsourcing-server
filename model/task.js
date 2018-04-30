@@ -30,7 +30,8 @@ const taskSchema = mongoose.Schema({
   answers_: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Answer'
-  }]
+  }],
+  censor: { type: mongoose.Schema.Types.ObjectId, ref: 'Censor' }
 })
 
 const Task = mongoose.model('Task', taskSchema);

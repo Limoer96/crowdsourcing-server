@@ -10,7 +10,8 @@ const answerSchema = mongoose.Schema({
   task: { type: mongoose.Schema.Types.ObjectId, ref: 'Task'},
   text: { type: String, required: true },
   img_src: [ { type: String } ],
-  video_src: { type: String }
+  video_src: { type: String },
+  arbitration: { type: mongoose.Schema.Types.ObjectId, ref: 'Arbitration' }
 });
 
 

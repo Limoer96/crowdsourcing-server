@@ -63,6 +63,9 @@ app.use((req, res, next) => {
       || path === '/api/users/reset_password'
       || path === '/api/admins/auth'
       || path === '/api/admins/data'
+      || path === '/api/admins/tasks'
+      || path === '/api/admins/close_task'
+      || path === '/api/admins/answers'
     ) 
     {
       next();
