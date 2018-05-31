@@ -235,9 +235,8 @@ router.post('/tasks_list_mult_conditions', (req, res, next) => {
 
 
 router.get('/map', (req, res, next) => {
-  let _id = req.decoded._id;
   // 筛选条件，使用了地址(经纬度)发布的任务，当前任务处于可选择状态，当前任务非自己发布的任务
-  Task.find({ status: 0, 'location.lng': { '$ne': 0 }, 'publish_info': { '$ne': _id }}, (err, tasks) => {
+  Task.find({ status: 0, 'location.lng': { '$ne': 0 }}, (err, tasks) => {
     if(err) {
       handle.handleServerError(res);
     }else {

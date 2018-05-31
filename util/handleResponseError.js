@@ -8,7 +8,7 @@ exports.handleServerError = function (res, msg) {
 }
 
 exports.handleInvalidAuthError = function(res, msg) {
-  const error = msg || 'Invalid User Input';
+  const error = msg || '账户或密码不正确';
   res.status(400).json({
     data: '',
     error: error,

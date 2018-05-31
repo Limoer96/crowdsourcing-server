@@ -66,6 +66,7 @@ app.use((req, res, next) => {
       || path === '/api/admins/tasks'
       || path === '/api/admins/close_task'
       || path === '/api/admins/answers'
+      || path === '/api/tasks/map'
     ) 
     {
       next();

@@ -84,16 +84,10 @@ router.post('/cash', (req, res, next) => {
 
 router.get('/account_detail', (req, res, next) => {
   let _id = req.decoded._id;
+  console.log('id', _id);
   Record
-    .find({ '$where': function(_id) {
-      for(let record in this) {
-        if(record.send == _id || record.receive == _id) {
-          return true;
-        }else {
-          return false;
-        }
-      }
-    }})
+    .find({})
+    .or([{ 'send': _id }, { 'receive': _id }])
     .sort({ date: -1 })
     .exec((err, records) => {
       if(err) {
